@@ -1,3 +1,40 @@
-from django.shortcuts import render
+"""Views for user api"""
 
-# Create your views here.
+from rest_framework import generics, permissions
+from rest_framework.views import APIView
+from user.serializer import UserSerializer, GetTokenPairSerializer, SendEmailSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.response import Response
+from rest_framework import status
+
+
+class CreateUserView(generics.CreateAPIView):
+    """Create a new user in the system"""
+
+    serializer_class = UserSerializer
+
+
+class LoginUserView(TokenObtainPairView):
+    """Login a user an return token"""
+
+    serializer_class = GetTokenPairSerializer
+
+
+class UpdateUserView(generics.RetrieveUpdateAPIView):
+    """Retrive  and update the user"""
+
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        return self.request.user
+
+
+class ForgotPasswordUserView(APIView):
+    def post(self, request):
+        serializer = SendEmailSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            return Response(
+                {"message": "An email has been sent to you to reset your password"},
+                status=status.HTTP_200_OK,
+            )

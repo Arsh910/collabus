@@ -131,3 +131,18 @@ STATIC_ROOT = "vol/web/static"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "user.User"
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+}
+
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = "notoherupa@gmail.com"
+EMAIL_HOST_PASSWORD = "rnuuniecqypgvdvc"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_USE_TLS = True
