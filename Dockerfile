@@ -13,16 +13,20 @@ ARG DEV=false
 
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
-    apk add --update --no-cache postgresql-client && \
+    apk add --update --no-cache postgresql-client jpeg-dev && \
     apk add --update --no-cache --virtual .temp-build-deps \
-        build-base postgresql-dev musl-dev && \
+        build-base postgresql-dev musl-dev  zlib zlib-dev && \
     /py/bin/pip install -r /tmp/requirements.txt && \
     if [ $DEV = "true" ]; \
         then /py/bin/pip install -r /tmp/requirements.dev.txt ; \
     fi && \
     rm -rf /tmp && \
     apk del .temp-build-deps && \
-    adduser -D -H collabus-user
+    adduser -D -H collabus-user &&\
+    mkdir -p /vo/web/media && \
+    mkdir -p /vol/web/static && \
+    chown -R collabus-user:collabus-user /vol &&\
+    chmod -R 755 /vol
 
 ENV PATH="/py/bin:$PATH"
 
