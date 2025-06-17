@@ -7,7 +7,6 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
 
-# The port your socket.io server is running on
 SOCKET_IO_URL = "ws://socket.io:8001"
 LOGIN_URL = reverse("user:login")
 
