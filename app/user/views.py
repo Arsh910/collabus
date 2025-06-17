@@ -2,7 +2,12 @@
 
 from rest_framework import generics, permissions
 from rest_framework.views import APIView
-from user.serializer import UserSerializer, GetTokenPairSerializer, SendEmailSerializer
+from user.serializer import (
+    UserSerializer,
+    GetTokenPairSerializer,
+    SendEmailSerializer,
+    ForgotPasswordUserChangeSerializer,
+)
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from rest_framework import status
@@ -38,3 +43,7 @@ class ForgotPasswordUserView(APIView):
                 {"message": "An email has been sent to you to reset your password"},
                 status=status.HTTP_200_OK,
             )
+
+
+class ForgotPasswordUserChangeView(generics.UpdateAPIView):
+    serializer_class = ForgotPasswordUserChangeSerializer

@@ -89,6 +89,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         null=True, upload_to=user_image_file_path, blank=True
     )
 
+    friends = models.ManyToManyField("self", through='friend.Friendship', symmetrical=False)
+
     objects = UserManager()
 
     USERNAME_FIELD = "email"
