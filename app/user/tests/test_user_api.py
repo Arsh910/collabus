@@ -49,6 +49,7 @@ class PublicUserApiTests(TestCase):
 
         self.assertIn("access", res.data)
         self.assertIn("refresh", res.data)
+        self.assertIn("id", res.data)
 
     @patch("user.utils.Util.send_email")
     def test_send_email_api(self, patched_send_email):

@@ -32,6 +32,24 @@ services:
       - POSTGRES_USER=devuser
       - POSTGRES_PASSWORD=changeme
 
+  socket.io:
+    build:
+      context: .
+    ports:
+      - "8001:8001"
+    command: >
+      sh -c " python manage.py wait_for_app &&
+              uvicorn realtime.socketio_server:socketio_app --host 0.0.0.0 --port 8001"
+    environment:
+      - USE_REDIS=False
+    depends_on:
+      - app
+
+  redis:
+    image: redis:alpine
+    expose:
+      - 6379  
+      
 volumes:
   dev-db-data:
   dev-static-data:

@@ -3,11 +3,11 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from .utils import Util
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.encoding import smart_str, force_bytes
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -47,6 +47,11 @@ class GetTokenPairSerializer(TokenObtainPairSerializer):
 
     username_field = "email"
 
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data["id"] = self.user.id
+        return data
+
 
 class SendEmailSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255)
@@ -72,4 +77,38 @@ class SendEmailSerializer(serializers.Serializer):
         else:
             raise serializers.ValidationError(
                 "something worng with email service , please try again"
+            )
+
+
+class ForgotPasswordUserChangeSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = get_user_model()
+        fields = ["password", "confirm_password"]
+
+    def validate(self, attr):
+        password = attr.get("password")
+        confirm_password = attr.get("confirm_password")
+
+        uid = self.context.get("uid")
+        token = self.context.get("token")
+
+        if password == confirm_password:
+            try:
+                id = smart_str(urlsafe_base64_decode(uid))
+                user = get_user_model().objects.get(id=id)
+                if not PasswordResetTokenGenerator().check_token(
+                    user=user, token=token
+                ):
+                    raise serializers.ValidationError("Link is either wrong or expired")
+                user.set_password(password)
+                user.save()
+                return attr
+            except ObjectDoesNotExist:
+                raise serializers.ValidationError("User with this id does not exists")
+        else:
+            raise serializers.ValidationError(
+                "password and confirm_password do not match"
             )
