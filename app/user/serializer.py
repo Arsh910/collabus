@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from .utils import Util
+from user.worker.tasks import send_email_task
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.encoding import smart_str, force_bytes
 
@@ -55,10 +55,11 @@ class GetTokenPairSerializer(TokenObtainPairSerializer):
 
 class SendEmailSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255)
+    LINK = "127.0.0.1"
 
-    def validate_email(sefl, value):
+    def validate_email(self, email_to):
         try:
-            user = get_user_model().objects.get(email=value)
+            user = get_user_model().objects.get(email=email_to)
         except ObjectDoesNotExist:
             raise serializers.ValidationError("email is not registered")
 
@@ -66,18 +67,7 @@ class SendEmailSerializer(serializers.Serializer):
         token = PasswordResetTokenGenerator().make_token(user)
         link = "http://{LINK}:3000/user/reset/" + uid + "/" + token
 
-        data = {
-            "subject": "Reset Your Password",
-            "body": f"This is an email send to reset password . click on the link : {link}",
-            "to_email": value,
-        }
-
-        if Util.send_email(data):
-            return value
-        else:
-            raise serializers.ValidationError(
-                "something worng with email service , please try again"
-            )
+        send_email_task(link, email_to)
 
 
 class ForgotPasswordUserChangeSerializer(serializers.ModelSerializer):

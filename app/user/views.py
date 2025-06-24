@@ -37,18 +37,26 @@ class UpdateUserView(generics.RetrieveUpdateAPIView):
 
 
 class ForgotPasswordUserView(APIView):
-    """handle User forgot password"""
     def post(self, request):
         serializer = SendEmailSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             return Response(
-                {"message": "An email has been sent to you to reset your password"},
+                {
+                    "message": "An email will be sent to you within 1 min to reset your password"
+                },
                 status=status.HTTP_200_OK,
             )
 
 
-class ForgotPasswordUserChangeView(generics.UpdateAPIView):
-    serializer_class = ForgotPasswordUserChangeSerializer
+class ForgotPasswordUserChangeView(APIView):
+    def patch(self, request, uid, token, format=None):
+        serializer = ForgotPasswordUserChangeSerializer(
+            data=request.data, context={"uid": uid, "token": token}
+        )
+        if serializer.is_valid(raise_exception=True):
+            return Response({"msg": "password changed sucessfully"})
+        else:
+            return Response({"error": "some error happend"})
 
 
 class UpdateLastVisitView(APIView):
