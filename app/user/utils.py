@@ -73,7 +73,7 @@ def send_email(link: str, to_email: str) -> bool:
     data = make_email(link, to_email)
     email = EmailMultiAlternatives(
         subject=data["subject"],
-        body=data["text_body"],  # primary (plain-text) part
+        body=data["text_body"],
         from_email=settings.EMAIL_HOST_USER,
         to=[data["to_email"]],
     )
