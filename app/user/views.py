@@ -37,6 +37,7 @@ class UpdateUserView(generics.RetrieveUpdateAPIView):
 
 
 class ForgotPasswordUserView(APIView):
+    """handle User forgot password"""
     def post(self, request):
         serializer = SendEmailSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
