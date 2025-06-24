@@ -12,3 +12,16 @@ uvicorn==0.23.2
 gunicorn==21.2.0
 redis>=4.0.0
 channels>=3.0.4,<4.0.0
+pymongo==4.7.0
+celery==5.2.7
+numpy==1.23.5
+scipy==1.9.3
+pandas==1.5.3
+scikit-learn==1.2.2
+tqdm==4.65.0
+torch>=1.12.0
+sentence-transformers>=2.2.2
+transformers>=4.35.0
+pinecone>=3.0.0
+django-celery-beat==2.5.0
+

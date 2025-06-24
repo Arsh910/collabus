@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     "user",
     'friend',
     'notifications',
+    'blog',
+
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -151,5 +154,24 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_USE_TLS = True
 
 
-USE_REDIS_SOCKETIO = os.getenv("USE_REDIS", False) == True
-REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379")
+# PostgreSQL
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_NAME = os.getenv("DB_NAME", "devdb")
+DB_USER = os.getenv("DB_USER", "devuser")
+DB_PASS = os.getenv("DB_PASS", "changeme")
+
+# Redis
+USE_REDIS_SOCKETIO = os.getenv("USE_REDIS", "False").lower() == "true"
+REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
+
+# MongoDB
+USE_MONGO_DB = os.getenv("USE_MONGO", "False").lower() == "true"
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://admin:secret@mongo:27017/")
+
+# Celery 
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
+
+
+# schedular 
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"

@@ -7,3 +7,6 @@ exclude =
     settings.py 
     socketio_server.py
     apps.py
+    celery.py
+    blog_embeddings.py
+    __init__.py

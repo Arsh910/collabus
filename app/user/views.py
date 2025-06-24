@@ -11,6 +11,7 @@ from user.serializer import (
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from rest_framework import status
+from django.utils.timezone import now
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -47,3 +48,13 @@ class ForgotPasswordUserView(APIView):
 
 class ForgotPasswordUserChangeView(generics.UpdateAPIView):
     serializer_class = ForgotPasswordUserChangeSerializer
+
+
+class UpdateLastVisitView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        user.last_visit = now()
+        user.save(update_fields=["last_visit"])
+        return Response({"status": "last_visit updated"})

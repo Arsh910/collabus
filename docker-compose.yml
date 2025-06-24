@@ -18,10 +18,17 @@ services:
     environment:
       - DB_HOST=db
       - DB_NAME=devdb
-      -  DB_USER=devuser
+      - DB_USER=devuser
       - DB_PASS=changeme
+      - USE_REDIS=False
+      - REDIS_URL=redis://redis:6379/0
+      - MONGO_URL=mongodb://admin:secret@mongo:27017/
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0 
     depends_on:
       - db 
+      - mongo
+      - redis
 
   db:
     image: postgres:13-alpine
@@ -41,15 +48,85 @@ services:
       sh -c " python manage.py wait_for_app &&
               uvicorn realtime.socketio_server:socketio_app --host 0.0.0.0 --port 8001"
     environment:
-      - USE_REDIS=False
+      - REDIS_URL=redis://redis:6379/0
+      - USE_REDIS=True
     depends_on:
       - app
+  
+  celery:
+    build:
+      context: .
+    volumes:
+      - ./app:/app
+    command: >
+      sh -c " python manage.py wait_for_app && 
+              celery -A blog.worker.celery worker --concurrency=3 --loglevel=info --hostname=blog_recommender@%h"
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+    environment:
+      - DB_HOST=db
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASS=changeme
+      - USE_REDIS=True
+      - REDIS_URL=redis://redis:6379/0
+      - MONGO_URL=mongodb://admin:secret@mongo:27017/
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - app
+      - redis
+      - mongo
+      - db
+
+  celery-beat:
+    build:
+      context: .
+    volumes:
+      - ./app:/app
+    command: >
+      sh -c "python manage.py wait_for_app && 
+             celery -A blog.worker.celery beat --loglevel=info"
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+    environment:
+      - DB_HOST=db
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASS=changeme
+      - USE_REDIS=True
+      - REDIS_URL=redis://redis:6379/0
+      - MONGO_URL=mongodb://admin:secret@mongo:27017/
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - app
+      - redis
+      - mongo
+      - db
+
 
   redis:
     image: redis:alpine
     expose:
       - 6379  
+
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+    volumes:
+      - mongo-db-data:/data/db
+
       
 volumes:
   dev-db-data:
   dev-static-data:
+  mongo-db-data:
