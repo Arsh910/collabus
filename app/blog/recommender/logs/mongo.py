@@ -80,7 +80,7 @@ def mark_blog_as_uploaded(blog_id):
     """Mark a blog as uploaded to Pinecone."""
     blog_uploads_collection.update_one(
         {"blog_id": str(blog_id)},
-        {"$set": {"blog_id": str(blog_id), "timestamp": datetime.utcnow()}},
+        {"$set": {"timestamp": datetime.utcnow()}},
         upsert=True,
     )
 
@@ -96,7 +96,7 @@ def fetch_existing_blog_ids() -> Set[str]:
 def mark_user_as_uploaded(user_id):
     blog_user_collection.update_one(
         {"user_id": str(user_id)},
-        {"$set": {"user_id": str(user_id), "uploaded_at": datetime.utcnow()}},
+        {"$set": {"uploaded_at": datetime.utcnow()}},
         upsert=True,
     )
 

@@ -51,7 +51,7 @@ class PublicUserApiTests(TestCase):
         self.assertIn("refresh", res.data)
         self.assertIn("id", res.data)
 
-    @patch("user.utils.Util.send_email")
+    @patch("user.utils.send_email")
     def test_send_email_api(self, patched_send_email):
         payload = {
             "email": "test@example.com",

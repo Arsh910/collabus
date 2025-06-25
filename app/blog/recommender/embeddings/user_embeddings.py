@@ -116,14 +116,14 @@ def compute_and_save_user_embeddings(
             vectors.append((str(user_id), emb.tolist()))
 
     if vectors:
-        print("\n⬆️ Uploading user embeddings to Pinecone...")
-        pinecone_index = get_pinecone_index(USER_INDEX_NAME)
-        upsert_vectors(pinecone_index, vectors)
-        print(f"✅ Uploaded {len(vectors)} user embeddings to Pinecone.")
-
         print("\n🗂️ Saving user embedding logs to MongoDB...")
         for user_id, _ in tqdm(vectors, desc="📝 Logging uploads", unit="user"):
             mark_user_as_uploaded(user_id)
         print("✅ Saved user embedding logs.\n")
+
+        print("\n⬆️ Uploading user embeddings to Pinecone...")
+        pinecone_index = get_pinecone_index(USER_INDEX_NAME)
+        upsert_vectors(pinecone_index, vectors)
+        print(f"✅ Uploaded {len(vectors)} user embeddings to Pinecone.")
     else:
         print("⚠️ No user embeddings to upload.\n")

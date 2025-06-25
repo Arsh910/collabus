@@ -70,14 +70,15 @@ def compute_and_save_blog_embeddings(model, tokenizer, device, new_only=False):
     blog_emb_pairs = compute_blog_embeddings(blogs, model, tokenizer, device)
     blog_vectors = [(bid, emb.tolist()) for bid, emb in blog_emb_pairs]
 
-    print("⬆️ Uploading blog embeddings to Pinecone...")
-    upsert_vectors(blog_index, blog_vectors)
-    print(f"✅ Uploaded {len(blog_vectors)} blog embeddings.")
-
     print(f"🔄 Saving blog embeddings logs")
     for blog_id, _ in blog_emb_pairs:
         mark_blog_as_uploaded(blog_id)
     print(f"✅ Saved blog embeddings logs")
+    
+
+    print("⬆️ Uploading blog embeddings to Pinecone...")
+    upsert_vectors(blog_index, blog_vectors)
+    print(f"✅ Uploaded {len(blog_vectors)} blog embeddings.")
 
     if not new_only:
         print("🧾 Computing author embeddings (full update)...")
